@@ -24,18 +24,19 @@ public class RPCClient {
 
     public static void main(String[] args) throws IOException, TimeoutException, ExecutionException, InterruptedException {
         RPCClient client = new RPCClient();
-        for(int i = 0; i < 32; i++) {
+        long start = System.currentTimeMillis();
+        for(int i = 0; i < 46; i++) {
             String message = Integer.valueOf(i).toString();
             String result = client.call(message);
             System.out.println("Fibo for " + i + " = " + result);
         }
+        System.out.println(System.currentTimeMillis() - start);
 
     }
 
     public String call(String message) throws IOException, ExecutionException, InterruptedException {
         final String corrId = UUID.randomUUID().toString();
 
-        channel.queueDeclare(requestQueue, false, false, false, null);
         String replyQueue = channel.queueDeclare().getQueue();
 
         AMQP.BasicProperties basicProperties = new AMQP.BasicProperties
@@ -52,14 +53,13 @@ public class RPCClient {
             if(delivery.getProperties().getCorrelationId().equals(corrId)) {
                 response.complete(new String(delivery.getBody(), StandardCharsets.UTF_8));
             }
-
         };
 
-        String cTag = channel.basicConsume("replyQueue", true, callback, consumerTag ->{});
+        String cTag = channel.basicConsume(replyQueue, true, callback, consumerTag ->{});
         String result = response.get();
 
         channel.basicCancel(cTag);
 
-        return null;
+        return result;
     }
 }

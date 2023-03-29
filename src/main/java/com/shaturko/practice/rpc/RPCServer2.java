@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeoutException;
 
 
-public class RPCServer {
+public class RPCServer2 {
     private static final String RPC_QUEUE_NAME = "rpc_queue";
 
     public static void main(String[] args) throws IOException, TimeoutException {
@@ -23,7 +23,6 @@ public class RPCServer {
 
         channel.queueDeclare(RPC_QUEUE_NAME, false, false, false, null);
         channel.queuePurge(RPC_QUEUE_NAME);
-        channel.basicQos(1);
 
 
         DeliverCallback callback = (consumerTag, delivery) -> {
